@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1764874656889-1" author="Aleksandr">
+        <createTable tableName="shipment_items">
+            <column name="shipment_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="items" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1764874656889-2" author="Aleksandr">
+        <createTable tableName="shipments">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_shipments"/>
+            </column>
+            <column name="order_number" type="VARCHAR(255)"/>
+            <column name="shipment_number" type="VARCHAR(255)"/>
+            <column name="recipient_name" type="VARCHAR(255)"/>
+            <column name="recipient_email" type="VARCHAR(255)"/>
+            <column name="recipient_phone" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="delivered_at" type="DATETIME"/>
+            <column name="estimated_delivery_date" type="DATETIME"/>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="SMALLINT"/>
+            <column name="delivery_type" type="SMALLINT"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="address" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="state" type="VARCHAR(255)"/>
+            <column name="zip" type="VARCHAR(255)"/>
+            <column name="country" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1764874656889-3" author="Aleksandr">
+        <addForeignKeyConstraint baseColumnNames="shipment_id" baseTableName="shipment_items"
+                                 constraintName="fk_shipment_items_on_shipment" referencedColumnNames="id"
+                                 referencedTableName="shipments"/>
+    </changeSet>
+
+</databaseChangeLog>

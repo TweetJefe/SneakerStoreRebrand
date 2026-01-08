@@ -1,0 +1,111 @@
+services:
+  cart-service:
+    build:
+      context: .
+      dockerfile: cart/Dockerfile
+    container_name: cart-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      users-service:
+        condition: service_started
+      main-db:
+        condition: service_started
+    networks:
+      - app-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/cartsdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  orders-service:
+    build:
+      context: .
+      dockerfile: orders/Dockerfile
+    container_name: orders-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      users-service:
+        condition: service_started
+      main-db:
+        condition: service_started
+    networks:
+      - app-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/ordersdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  products-service:
+    build:
+      context: .
+      dockerfile: products/Dockerfile
+    container_name: products-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      users-service:
+        condition: service_started
+      main-db:
+        condition: service_started
+    networks:
+      - app-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/productsdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  shipments-service:
+    build:
+      context: .
+      dockerfile: shipments/Dockerfile
+    container_name: shipments-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      users-service:
+        condition: service_started
+      main-db:
+        condition: service_started
+    networks:
+      - app-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/shipmentsdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  users-service:
+    build:
+      context: .
+      dockerfile: users/Dockerfile
+    container_name: users-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/usersdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  main-db:
+    image: postgres:15
+    container_name: main-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:55432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init-dbs:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:

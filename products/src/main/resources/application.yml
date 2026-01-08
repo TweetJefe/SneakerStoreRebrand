@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: products
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  liquibase:
+    change-log: db/changelog/changelog-master.xml
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api/docs
+  swagger-ui:
+    enabled: true
+    config-url: /api/docs
+
+logging:
+  level:
+    org:
+      springdoc: DEBUG
+      springframework:
+        web: DEBUG
+server:
+  port: 8081
