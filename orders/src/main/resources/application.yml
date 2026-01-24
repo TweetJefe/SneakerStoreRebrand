@@ -5,8 +5,9 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  liquibase:
-    change-log: db/changelog/changelog-master.xml
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 springdoc:
   api-docs:
@@ -22,5 +23,16 @@ logging:
       springdoc: DEBUG
       springframework:
         web: DEBUG
+        security: DEBUG
+    com:
+      fasterxml:
+        jackson: DEBUG
+
+security:
+  jwt:
+    secret: ",'aI6QxA(('yzt-L!zF\"z@tI6}7Stj2LH[lky#c;bi2Ffjamtf1|m]9uHi3fH-bu)9P4@.?EXh+aWpAxtuXy#kM#=apkD-yx\"PDL7kbCU\"0VAs/.o'TVhft9zopK(uMC'}e*z9qtRUjjhWPEp(5uAEskKHtwM,FtU4@Jry:!+/qa.Jb"
+    expiration:
+      ms: 86400000
+
 server:
   port: 8082

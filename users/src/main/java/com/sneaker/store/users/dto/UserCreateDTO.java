@@ -9,7 +9,8 @@ public record UserCreateDTO(
          String email,
          String password,
          String phoneNumber,
-         Address address
+         Address address,
+         String role
 
 ) {
 

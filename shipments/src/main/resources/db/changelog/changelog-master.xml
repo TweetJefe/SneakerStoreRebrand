@@ -5,4 +5,7 @@
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="/db/changelog/001-create-shipment-table.xml"/>
+    <include file="db/changelog/18-01-changelog.xml"/>
+    <include file="db/changelog/18-02-changelog.xml"/>
+    <include file="db/changelog/18-01-changelog.xml"/>
 </databaseChangeLog>

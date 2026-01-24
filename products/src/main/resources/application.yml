@@ -2,25 +2,34 @@ spring:
   application:
     name: products
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-  liquibase:
-    change-log: db/changelog/changelog-master.xml
+    url: jdbc:postgresql://products-db:5432/productsdb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 springdoc:
   api-docs:
     enabled: true
-    path: /api/docs
   swagger-ui:
     enabled: true
-    config-url: /api/docs
+
+server:
+  port: 8081
 
 logging:
   level:
     org:
-      springdoc: DEBUG
       springframework:
         web: DEBUG
-server:
-  port: 8081
+        security: DEBUG
+    com:
+      fasterxml:
+        jackson: DEBUG
+
+security:
+  jwt:
+    secret: ",'aI6QxA(('yzt-L!zF\"z@tI6}7Stj2LH[lky#c;bi2Ffjamtf1|m]9uHi3fH-bu)9P4@.?EXh+aWpAxtuXy#kM#=apkD-yx\"PDL7kbCU\"0VAs/.o'TVhft9zopK(uMC'}e*z9qtRUjjhWPEp(5uAEskKHtwM,FtU4@Jry:!+/qa.Jb"
+    expiration: 86400000

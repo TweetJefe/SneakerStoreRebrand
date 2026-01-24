@@ -1,20 +1,27 @@
 package com.sneaker.store.products.repository;
 
-import com.sneaker.store.products.enums.Category;
 import com.sneaker.store.products.model.Product;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product,Long> {
-    Page<Product> findAllByBrand(String brand, Pageable pageable);
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    @Query("select distinct p.brand from Product p")
+    List<String> getAllBrands();
 
-    Page<Product> findAllByPrice(double price, Pageable pageable);
+    Boolean existsProductByNameAndArticle(String name, String article);
 
-    Page<Product> findAllByCategory(Category category, Pageable pageable);
+    @Query(value = "select distinct size_id from product_sizes order by size_id asc", nativeQuery = true)
+    List<Double> findAllSizes();
 
-    Page<Product> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
+    @Query("select distinct p from Product p where p.price >= :price * 0.9 and p.price <= :price * 1.1")
+    List<Product> findRecommendByPrice(@Param("price") double price);
+
+    @Query("select distinct p from Product p where p.brand = :brand and p.id != :id")
+    List<Product> findRecommendByBrand(@Param("id") Long id, @Param("brand") String brand, Limit limit);
 }

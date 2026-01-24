@@ -4,7 +4,6 @@ import com.sneaker.store.products.dto.ProductCriteria;
 import com.sneaker.store.products.dto.ProductDTO;
 import com.sneaker.store.products.dto.RRRCProductDTO;
 import com.sneaker.store.products.dto.UpdateProductDTO;
-import com.sneaker.store.products.enums.Category;
 import com.sneaker.store.products.service.ProductServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,11 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Tag(name="Products", description = "API for work with products")
@@ -38,9 +40,10 @@ public class ProductController {
             @ApiResponse(responseCode = "201", description = "Product was created"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "409", description = "Product with this name already in system"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<Void> createProduct(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -68,7 +71,7 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Not Found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/update")
     public ResponseEntity<Void> updateProduct(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -96,7 +99,7 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Not Found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
             @Parameter(description = "Product ID", example = "13")
@@ -122,111 +125,16 @@ public class ProductController {
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @GetMapping("/criteria")
-    public CompletableFuture<ResponseEntity<Page<ProductDTO>>> findProductByCriteria(
-            @Parameter(description = "Criterias for searching")
-            @ModelAttribute ProductCriteria criteria,
-            Pageable pageable
-    ){
-        return service.findByCriteria(criteria, pageable).thenApply(product -> ResponseEntity.status(HttpStatus.OK).body(product));
+    @PutMapping("/criteria/page/{page}")
+    public ResponseEntity<?> findProductByCriteria(
+            @PathVariable int page,
+            @RequestBody ProductCriteria criteria
+    ) {
+        final int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(service.findByCriteria(criteria, pageable).join());
     }
 
-    @Operation(
-            summary = "Find product by brand",
-            tags = {"Products"}
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Products was returned", content = @Content(
-                    array = @ArraySchema(
-                            arraySchema = @Schema(description = "Page of products"),
-                            schema = @Schema(implementation = ProductDTO.class)
-                    )
-            )),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/brand")
-    public CompletableFuture<ResponseEntity<Page<ProductDTO>>> findProductByBrand(
-            @Parameter(description = "Product brand", example = "Nike")
-            @RequestParam String brand,
-            Pageable pageable
-    ){
-        return service.getProductByBrand(brand, pageable).thenApply(product -> ResponseEntity.status(HttpStatus.OK).body(product));
-    }
-
-    @Operation(
-            summary = "Find product by price",
-            tags = {"Products"}
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Products was returned", content = @Content(
-                    array = @ArraySchema(
-                            arraySchema = @Schema(description = "Page of products"),
-                            schema = @Schema(implementation = ProductDTO.class)
-                    )
-            )),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/price")
-    public CompletableFuture<ResponseEntity<Page<ProductDTO>>> findProductByPrice(
-            @Parameter(description = "Price of product", example = "74.95")
-            @RequestParam double price,
-            Pageable pageable
-    ){
-        return service.getProductByPrice(price, pageable).thenApply(product -> ResponseEntity.status(HttpStatus.OK).body(product));
-    }
-
-
-    @Operation(
-            summary = "Find product by category",
-            tags = {"Products"}
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Products was returned", content = @Content(
-                    array = @ArraySchema(
-                            arraySchema = @Schema(description = "Page of products"),
-                            schema = @Schema(implementation = ProductDTO.class)
-                    )
-            )),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/category")
-    public CompletableFuture<ResponseEntity<Page<ProductDTO>>> findProductByCategory(
-            @Parameter(description = "Product category", example = "Football")
-            @RequestParam Category category,
-            Pageable pageable
-    ){
-        return service.getProductByCategory(category, pageable).thenApply(product -> ResponseEntity.status(HttpStatus.OK).body(product));
-    }
-
-    @Operation(
-            summary = "Find product by name",
-            tags = {"Products"}
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Products was returned", content = @Content(
-                    array = @ArraySchema(
-                            arraySchema = @Schema(description = "Page of products"),
-                            schema = @Schema(implementation = ProductDTO.class)
-                    )
-            )),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "403", description = "Forbidden"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/name")
-    public CompletableFuture<ResponseEntity<Page<ProductDTO>>> findProductByName(
-            @Parameter(description = "Product Name", example = "...")
-            @RequestParam String name,
-            Pageable pageable
-    ){
-        return service.findProductByName(name, pageable).thenApply(product -> ResponseEntity.status(HttpStatus.OK).body(product));
-    }
 
     @Operation(
             summary = "Reserve product",
@@ -280,4 +188,48 @@ public class ProductController {
         service.releaseProduct(dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+    @GetMapping("/brand/all")
+    public ResponseEntity<List<String>> getAllBrands(){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAllBrands());
+    }
+
+    @GetMapping("/sizes/all")
+    public ResponseEntity<List<Double>> getAllSizes(){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAllSizes());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDTO> getProductById(
+            @Parameter(description = "Product ID", example = "1")
+            @PathVariable Long id
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getProductById(id));
+    }
+
+    @GetMapping("/all/page/{page}")
+    public ResponseEntity<Page<ProductDTO>> getAllWithoutCriteria(
+            @PathVariable int page
+    ){
+        final int size = 20;
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAllWithoutCriteria(pageable));
+    }
+
+    @GetMapping("/recommend/{id}/price")
+    public ResponseEntity<List<ProductDTO>> findRecommendByPrice(
+            @Parameter(description = "Product ID", example = "1")
+            @PathVariable Long id
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(service.findRecommendByPrice(id));
+    }
+
+    @GetMapping("/recommend/{id}/brand")
+    public ResponseEntity<List<ProductDTO>> findRecommendByBrand(
+            @Parameter(description = "Product ID", example = "1")
+            @PathVariable Long id
+    ){
+        return ResponseEntity.status(HttpStatus.OK).body(service.findRecommendByBrand(id));
+    }
+
 }

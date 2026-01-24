@@ -1,5 +1,6 @@
 package com.sneaker.store.cart.model;
 
+import com.sneaker.store.cart.dto.ProductDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,7 +17,10 @@ public class CartItem {
     private Long id;
 
     private Long productId;
-    private String productName;
+    private String name;
+    private String brand;
+    private Double size;
+    private String imageUrl;
     private int quantity;
 
     private double price;
@@ -25,10 +29,15 @@ public class CartItem {
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    public CartItem(Long productId, Cart cart) {
-        this.productId = productId;
+    public CartItem(ProductDTO dto, Cart cart, double size){
         this.cart = cart;
+        this.productId = dto.id();
+        this.name = dto.name();
+        this.brand = dto.brand();
+        this.size = size;
+        this.imageUrl = dto.url();
         this.quantity = 1;
+        this.price = dto.price();
     }
 }
 

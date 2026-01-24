@@ -1,13 +1,15 @@
 package com.sneaker.store.products.dto;
 
-import com.sneaker.store.products.enums.Category;
+import java.util.List;
 
 public record ProductCriteria(
         String name,
-        Category category,
-        double price,
-        double size,
-        String brand,
+        String article,
+        Boolean category,
+        Double priceFrom,
+        Double priceTo,
+        List<Double> size,
+        List<String> brand,
         String model
 ){
 }

@@ -1,8 +1,10 @@
 package com.sneaker.store.products.model;
 
-import com.sneaker.store.products.enums.Category;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -17,18 +19,35 @@ public class Product {
     private Long id;
 
     private String brand;
+
+    @Column(unique = true)
     private String name;
+
     private String model;
-    private Category category;
+    private boolean category;
     private String article;
-    private double size;
+
+
+    @ElementCollection
+    @CollectionTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "size_id")
+    private List<Double> sizes = new ArrayList<>();
 
     private double price;
 
-    @ManyToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id")
     private ProductImage image;
 
+    private int available_quantity;
 
-    private int avaibleQuantity;
+    public Product(String b, String n, String m, boolean c, String a, List<Double> s, double p){
+        this.brand = b;
+        this.name = n;
+        this.model = m;
+        this.category = c;
+        this.article = a;
+        sizes.addAll(s);
+        this.price = p;
+    }
 }

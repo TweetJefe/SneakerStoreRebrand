@@ -2,11 +2,11 @@ package com.sneaker.store.orders.service;
 
 import com.sneaker.store.orders.dto.OrderCreateDTO;
 import com.sneaker.store.orders.dto.OrderDTO;
+import com.sneaker.store.orders.dto.OrderItemInProfile;
 import com.sneaker.store.orders.enums.OrderStatus;
 import com.sneaker.store.orders.exceptions.NullableViolation;
 import com.sneaker.store.orders.exceptions.ServerException;
 import com.sneaker.store.orders.exceptions.UniquenessViolation;
-import com.sneaker.store.orders.mapper.OrderMapper;
 import com.sneaker.store.orders.model.Order;
 import com.sneaker.store.orders.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,20 +19,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
 
     private final String PostgreSQLUniquenessViolation = "23505";
     private final String PostgreSQLNullableViolation = "23502";
 
     @Override
-    public String createOrder(OrderCreateDTO dto){
-        Order order = orderMapper.toEntityCreate(dto);
+    public String createOrder(OrderCreateDTO dto, String email){
+        Order order = OrderMapper.mapToEntity(dto, email);
 
         order.setOrderNumber("ORD-" + UUID.randomUUID().toString().substring(0, 16).toUpperCase());
         order.setOrderDate(LocalDateTime.now());
@@ -66,10 +66,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public OrderDTO getOrder(Long orderId) {
-        Order order =  orderRepository.findById(orderId)
+    public OrderDTO getOrder(String orderNumber) {
+        Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(EntityNotFoundException::new);
-        return orderMapper.toDTO(order);
+        var dto = OrderMapper.mapToDTO(order);
+        System.out.println(dto);
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<OrderItemInProfile> getALlOrdersForCustomer(String email) {
+        return orderRepository.findAllByEmail(email)
+                .stream()
+                .map(OrderMapper::mapToItemInProfile)
+                .toList();
     }
 
     @Override
@@ -78,12 +89,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(EntityNotFoundException::new);
         order.setOrderStatus(OrderStatus.CANCELLED);
         saveOrder(order);
-        return orderMapper.toDTO(order);
-    }
-
-    @Transactional (readOnly = true)
-    @Override
-    public Page<OrderDTO> getOrdersByCustomer(Long customerId, Pageable pageable){
-        return orderRepository.findAllByCustomerId(customerId, pageable).map(orderMapper::toDTO);
+        return OrderMapper.mapToDTO(order);
     }
 }

@@ -5,8 +5,9 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  liquibase:
-    change-log: db/changelog/changelog-master.xml
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 springdoc:
   api-docs:
@@ -22,5 +23,6 @@ logging:
       springdoc: DEBUG
       springframework:
         web: DEBUG
+        security: DEBUG
 server:
   port: 8084

@@ -7,14 +7,12 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      users-service:
-        condition: service_started
-      main-db:
+      sneakers-db:
         condition: service_started
     networks:
       - app-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/cartsdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sneakers-db:5432/sneakersdb?currentSchema=carts_schema
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
@@ -26,14 +24,12 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      users-service:
-        condition: service_started
-      main-db:
+      sneakers-db:
         condition: service_started
     networks:
       - app-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/ordersdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sneakers-db:5432/sneakersdb?currentSchema=orders_schema
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
@@ -47,12 +43,12 @@ services:
     depends_on:
       users-service:
         condition: service_started
-      main-db:
+      sneakers-db:
         condition: service_started
     networks:
       - app-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/productsdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sneakers-db:5432/sneakersdb?currentSchema=products_schema
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
@@ -66,12 +62,12 @@ services:
     depends_on:
       users-service:
         condition: service_started
-      main-db:
+      sneakers-db:
         condition: service_started
     networks:
       - app-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/shipmentsdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sneakers-db:5432/sneakersdb?currentSchema=shipments_schema
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
@@ -85,18 +81,19 @@ services:
     networks:
       - app-network
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/usersdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sneakers-db:5432/sneakersdb?currentSchema=users_schema
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
-  main-db:
+  sneakers-db:
     image: postgres:15
-    container_name: main-db
+    container_name: sneakers-db
     environment:
+      POSTGRES_DB: sneakersdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:55432"
+      - "55434:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./init-dbs:/docker-entrypoint-initdb.d

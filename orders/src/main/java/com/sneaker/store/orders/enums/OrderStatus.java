@@ -1,5 +1,8 @@
 package com.sneaker.store.orders.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum OrderStatus {
     NEW(1),// Создан, но ещё не оплачен
     PENDING_PAYMENT(2),// Ожидает оплаты

@@ -1,16 +1,17 @@
 package com.sneaker.store.products.dto;
 
-import com.sneaker.store.products.enums.Category;
 import com.sneaker.store.products.model.ProductImage;
+
+import java.util.List;
 
 public record UpdateProductDTO(
         Long id,
         String brand,
         String name,
         String model,
-        Category category,
+        boolean category,
         String article,
-        double size,
+        List<Double> size,
         double price,
         ProductImage image
 ) {

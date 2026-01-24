@@ -1,12 +1,11 @@
 package com.sneaker.store.users.service;
 
-import com.sneaker.store.users.dto.UserCreateDTO;
-import com.sneaker.store.users.dto.UserProfileDTO;
-import com.sneaker.store.users.dto.UserUpdateDTO;
+import com.sneaker.store.users.dto.*;
 import com.sneaker.store.users.exceptions.NullableViolation;
 import com.sneaker.store.users.exceptions.ServerException;
 import com.sneaker.store.users.exceptions.UniquenessViolation;
 import com.sneaker.store.users.mapper.UserMapper;
+import com.sneaker.store.users.model.Address;
 import com.sneaker.store.users.model.User;
 import com.sneaker.store.users.repository.UserRepository;
 import jakarta.persistence.EntityExistsException;
@@ -14,13 +13,18 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     private final String PostgreSQLUniquenessViolation = "23505";
     private final String PostgreSQLNullableViolation = "23502";
@@ -30,6 +34,12 @@ public class UserServiceImpl implements UserService {
         checkUserExistenceByPhone(dto.phoneNumber());
 
         User user = mapper.toEntity(dto);
+        user.setPassword(passwordEncoder.encode(dto.password()));
+        if (dto.role() == null) {
+            user.getRoles().add("USER");
+        }else{
+            user.getRoles().addAll(List.of("ADMIN", "USER"));
+        }
         saveUser(user);
     }
 
@@ -53,29 +63,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public void updateUser(UserUpdateDTO dto, Long id) {
-        repository.findUserById(id).ifPresentOrElse(
-                user -> {
-                    if(user.getEmail().equals(dto.email())){
-                        throw new IllegalArgumentException("");
-                    }
-                    if(user.getPhoneNumber().equals(dto.phoneNumber())){
-                        throw new IllegalArgumentException("");
-                    }
-                    checkUserExistenceByEmail(dto.email());
-                    checkUserExistenceByPhone(dto.phoneNumber());
-
-                    user.setEmail(dto.email());
-                    user.setAddress(dto.address());
-                    user.setPhoneNumber(dto.phoneNumber());
-                    saveUser(user);
-                },
-                () -> {
-                    throw new EntityNotFoundException("");
-                }
-        );
-    }
 
     @Override
     public void deleteUser(Long id) {
@@ -87,14 +74,6 @@ public class UserServiceImpl implements UserService {
                     throw new EntityNotFoundException("");
                 }
         );
-    }
-
-
-    @Override
-    public UserProfileDTO getUser(Long id) {
-        User user = repository.findUserById(id)
-                .orElseThrow(() -> new EntityNotFoundException(""));
-        return mapper.toDTOProfile(user);
     }
 
     @Override
@@ -111,5 +90,65 @@ public class UserServiceImpl implements UserService {
                 .ifPresent(u -> {
                     throw new EntityExistsException("");
         });
+    }
+
+    @Override
+    public UserProfileDTO getUserProfileByEmail(String email) {
+        return repository.findUserByEmail(email).map(user -> new UserProfileDTO(
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAddress(),
+                user.getFavourites()
+        )).orElseThrow(EntityExistsException::new);
+    }
+
+    @Override
+    public void updateEmail(UpdateEmailDTO dto, String email) {
+        var user = repository.findUserByEmail(email).orElseThrow(EntityNotFoundException::new);
+        if(!passwordEncoder.matches(dto.password(), user.getPassword())){
+            throw new BadCredentialsException("");
+        }
+        user.setEmail(dto.email());
+        saveUser(user);
+    }
+
+    @Override
+    public void updateAddress(UpdateAddressDTO dto, String email) {
+        var user = repository.findUserByEmail(email).orElseThrow(EntityNotFoundException::new);
+        user.setAddress(new Address(
+                dto.city(),
+                dto.street(),
+                dto.zipcode(),
+                dto.country(),
+                dto.houseNumber(),
+                dto.doorNumber()
+        ));
+        saveUser(user);
+    }
+
+    @Override
+    public void updatePassword(UpdatePasswordDTO dto, String email) {
+        var user = repository.findUserByEmail(email).orElseThrow(EntityNotFoundException::new);
+        if(!passwordEncoder.matches(dto.password(), user.getPassword())){
+            throw new BadCredentialsException("");
+        }
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        saveUser(user);
+    }
+
+    @Override
+    public void addToFavorites(Long id, String email) {
+        User user = repository.findUserByEmail(email).orElseThrow(EntityNotFoundException::new);
+        user.getFavourites().add(id);
+        saveUser(user);
+    }
+
+    @Override
+    public void removeFromFavorites(Long id, String email) {
+        User user = repository.findUserByEmail(email).orElseThrow(EntityNotFoundException::new);
+        user.getFavourites().remove(id);
+        saveUser(user);
     }
 }

@@ -1,6 +1,7 @@
 package com.sneaker.store.cart.controller;
 
 import com.sneaker.store.cart.dto.CartDTO;
+import com.sneaker.store.cart.dto.ProductDTO;
 import com.sneaker.store.cart.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -67,14 +68,15 @@ public class CartController {
             @ApiResponse(responseCode = "404", description = "Cart was not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/add")
+    @PostMapping("/add/cart/{cartId}/size/{size}")
     public ResponseEntity<Void> addToCart(
             @Parameter(description = "Cart ID", example = "11")
-            @RequestParam Long cart,
-            @Parameter(description = "Product ID", example = "27")
-            @RequestParam Long product
+            @PathVariable Long cartId,
+            @Parameter(description = "Product size", example = "42")
+            @PathVariable Double size,
+            @RequestBody ProductDTO dto
     ){
-        service.addToCart(cart, product);
+        service.addToCart(cartId, dto, size);
         return ResponseEntity.ok().build();
     }
 
@@ -87,14 +89,16 @@ public class CartController {
             @ApiResponse(responseCode = "404", description = "Cart was not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PutMapping("/delete")
+    @PutMapping("/delete/cart/{cartId}/products/{productId}/size/{size}")
     public ResponseEntity<Void> deleteFromCart(
             @Parameter(description = "Cart ID", example = "11")
-            @RequestParam Long cart,
+            @PathVariable Long cartId,
             @Parameter(description = "Product ID", example = "27")
-            @RequestParam Long product
+            @PathVariable Long productId,
+            @Parameter(description = "Product size", example = "42")
+            @PathVariable Double size
     ){
-        service.deleteFromCart(cart, product);
+        service.deleteFromCart(cartId, productId, size);
         return ResponseEntity.ok().build();
     }
 
@@ -107,14 +111,16 @@ public class CartController {
             @ApiResponse(responseCode = "404", description = "Cart was not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @PatchMapping("/increase")
+    @PatchMapping("/increase/cart/{cartId}/products/{productId}/size/{size}")
     public ResponseEntity<Void> increaseProduct(
             @Parameter(description = "Cart ID", example = "11")
-            @RequestParam Long cart,
-            @Parameter(description = "Item ID", example = "14")
-            @RequestParam Long item
+            @PathVariable Long cartId,
+            @Parameter(description = "Product ID", example = "27")
+            @PathVariable Long productId,
+            @Parameter(description = "Product size", example = "42")
+            @PathVariable Double size
     ){
-        service.increaseQuantity(cart, item);
+        service.increaseQuantity(cartId, productId, size);
         return ResponseEntity.ok().build();
     }
 
@@ -127,14 +133,16 @@ public class CartController {
                 @ApiResponse(responseCode = "404", description = "Cart was not found"),
                 @ApiResponse(responseCode = "500", description = "Internal server error")
         })
-    @PatchMapping("/decrease")
+    @PatchMapping("/decrease/cart/{cartId}/products/{productId}/size/{size}")
     public ResponseEntity<Void> decreaseProduct(
             @Parameter(description = "Cart ID", example = "11")
-            @RequestParam Long cart,
-            @Parameter(description = "Item ID", example = "14")
-            @RequestParam Long item
+            @PathVariable Long cartId,
+            @Parameter(description = "Product ID", example = "27")
+            @PathVariable Long productId,
+            @Parameter(description = "Product size", example = "42")
+            @PathVariable Double size
     ){
-        service.decreaseQuantity(cart, item);
+        service.decreaseQuantity(cartId, productId, size);
         return ResponseEntity.ok().build();
     }
 

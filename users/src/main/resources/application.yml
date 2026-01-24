@@ -5,16 +5,17 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  liquibase:
-    change-log: db/changelog/changelog-master.xml
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 springdoc:
   api-docs:
     enabled: true
-    path: /api/docs
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
-    config-url: /api/docs
+    config-url: /v3/api-docs
 
 logging:
   level:
@@ -22,10 +23,11 @@ logging:
       springdoc: DEBUG
       springframework:
         web: DEBUG
+        security: DEBUG
 
 security:
   jwt:
-    secret: ",'aI6QxA(('yzt-L!zF\"z@tI6}7Stj2LH[lky#c;bi2Ffjamtf1|m]9uHi3fH-bu)9P4@.?EXh+aWpAxtuXy#kM#=apkD-yx\"PDL7kbCU\"0VAs/.o'TVhft9zopK(uMC\'}e*z9qtRUjjhWPEp(5uAEskKHtwM,FtU4@Jry:!+/qa.Jb"
+    secret: ",'aI6QxA(('yzt-L!zF\"z@tI6}7Stj2LH[lky#c;bi2Ffjamtf1|m]9uHi3fH-bu)9P4@.?EXh+aWpAxtuXy#kM#=apkD-yx\"PDL7kbCU\"0VAs/.o'TVhft9zopK(uMC'}e*z9qtRUjjhWPEp(5uAEskKHtwM,FtU4@Jry:!+/qa.Jb"
     expiration:
       ms: 86400000
 server:

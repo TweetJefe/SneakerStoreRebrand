@@ -2,18 +2,20 @@ package com.sneaker.store.orders.service;
 
 import com.sneaker.store.orders.dto.OrderCreateDTO;
 import com.sneaker.store.orders.dto.OrderDTO;
+import com.sneaker.store.orders.dto.OrderItemInProfile;
 import com.sneaker.store.orders.model.Order;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface OrderService {
-    String createOrder(OrderCreateDTO dto);
+    String createOrder(OrderCreateDTO dto, String email);
 
     void saveOrder(Order order);
 
-    OrderDTO getOrder(Long orderId);
+    OrderDTO getOrder(String orderNumber);
 
     OrderDTO cancelOrder(Long orderId);
 
-    Page<OrderDTO> getOrdersByCustomer(Long customerId, Pageable pageable);
+
+    List<OrderItemInProfile> getALlOrdersForCustomer(String name);
 }
