@@ -24,7 +24,6 @@ public interface ProductService {
 
     void deleteProduct(Long publicId);
 
-
     void reserveProduct(RRRCProductDTO dto);
 
     void releaseProduct(RRRCProductDTO dto);

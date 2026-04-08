@@ -12,6 +12,7 @@ public interface ShipmentService{
     void saveShipment(Shipment shipment);
 
     GetShipmentDTO getShipmentByOrderNumber(String orderNumber);
+
     UpdateShipmentDTO updateStatus(String orderNumber, Status status);
 }
 

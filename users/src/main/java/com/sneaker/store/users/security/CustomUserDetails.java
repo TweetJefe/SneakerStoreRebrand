@@ -26,8 +26,6 @@ public class CustomUserDetails implements UserDetails {
         return email;
     }
 
-    // === ОБЯЗАТЕЛЬНЫЕ МЕТОДЫ (Без них код не соберется!) ===
-
     @Override
     public boolean isAccountNonExpired() {
         return true; // Аккаунт не просрочен
